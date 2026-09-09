@@ -44,4 +44,36 @@ describe('bundleAppHtml', () => {
       process.chdir(prevCwd)
     }
   })
+
+  it('supports an isolated custom entry, stylesheet imports, and Vite plugins', async () => {
+    playground = await mkdtemp(join(fileURLToPath(new URL('.', import.meta.url)), '.tmp-bundle-'))
+    const css = join(playground, 'app.css')
+    await writeFile(css, '#mcp-app { --mcp-test-color: #123456; }')
+
+    let hookConfigRoot: string | undefined
+    const html = await bundleAppHtml(
+      { name: 'custom-app', sfc: join(playground, 'custom-app.vue') },
+      '<script setup lang="ts">const label = \'custom entry\'</script><template><p>{{ label }}</p></template>',
+      join(playground, '.nuxt/mcp-apps'),
+      resolver,
+      silentLog,
+      {
+        srcDir: playground,
+        css: [css],
+        entry: `import { createApp } from 'vue'
+import App from './App.vue'
+createApp(App).mount('#mcp-app')
+`,
+        vite: (config) => {
+          hookConfigRoot = config.root
+          return config
+        },
+      },
+    )
+
+    expect(hookConfigRoot).toContain('__entry__')
+    expect(html).toContain('custom entry')
+    expect(html).toContain('--mcp-test-color')
+    expect(html).toContain('class="isolate"')
+  })
 })
