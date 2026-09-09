@@ -1,9 +1,15 @@
 import type { McpIcon } from './definitions/handlers'
 
+export type McpHeaderValue = string | string[] | null | undefined
+
 export interface McpSessionsConfig {
   enabled: boolean
   maxDuration: number
   maxSessions: number
+}
+
+export interface McpInspectorConfig {
+  headers?: Record<string, McpHeaderValue>
 }
 
 export interface McpSecurityConfig {
@@ -37,6 +43,7 @@ export interface McpConfig {
   instructions?: string
   icons?: McpIcon[]
   dir: string
+  inspector: McpInspectorConfig
   /**
    * How the default `/mcp` handler should pick up auto-discovered definitions.
    * Has no effect on named handlers (`/mcp/<name>`).
@@ -56,6 +63,9 @@ export const defaultMcpConfig: McpConfig = {
   name: '',
   version: '1.0.0',
   dir: 'mcp',
+  inspector: {
+    headers: {},
+  },
   defaultHandlerStrategy: 'orphans',
   sessions: {
     enabled: false,
@@ -73,6 +83,14 @@ export function getMcpConfig(partial?: Partial<McpConfig>): McpConfig {
   const security = partial.security
     ? { ...defaultMcpConfig.security, ...partial.security }
     : defaultMcpConfig.security
+  const inspector = partial.inspector
+    ? {
+        headers: {
+          ...defaultMcpConfig.inspector.headers,
+          ...partial.inspector.headers,
+        },
+      }
+    : defaultMcpConfig.inspector
   return {
     enabled: partial.enabled ?? defaultMcpConfig.enabled,
     route: partial.route ?? defaultMcpConfig.route,
@@ -83,6 +101,7 @@ export function getMcpConfig(partial?: Partial<McpConfig>): McpConfig {
     instructions: partial.instructions,
     icons: partial.icons,
     dir: partial.dir ?? defaultMcpConfig.dir,
+    inspector,
     defaultHandlerStrategy: partial.defaultHandlerStrategy ?? defaultMcpConfig.defaultHandlerStrategy,
     sessions,
     security,

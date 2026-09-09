@@ -7,7 +7,7 @@ import { setupEvlog } from './setup/evlog'
 import { setupNitroAliases } from './setup/nitro-aliases'
 import { name, version } from '../package.json'
 import type { McpIcon } from './runtime/server/mcp/definitions/handlers'
-import type { McpConfig, McpDefaultHandlerStrategy, McpSecurityConfig } from './runtime/server/mcp/config'
+import type { McpConfig, McpDefaultHandlerStrategy, McpInspectorConfig, McpSecurityConfig } from './runtime/server/mcp/config'
 
 const log = logger.withTag('@nuxtjs/mcp-toolkit')
 
@@ -79,6 +79,11 @@ export interface ModuleOptions {
    * @default 'mcp' (app/mcp)
    */
   appsDir?: string
+  /**
+   * Configuration for the DevTools inspector launcher.
+   * Useful when the server requires HTTP headers such as `Authorization`.
+   */
+  inspector?: McpInspectorConfig
   /**
    * How the default `/mcp` handler picks up auto-discovered definitions when
    * named handlers exist (`server/mcp/handlers/<name>/` or `handlers: 'name'` field).
