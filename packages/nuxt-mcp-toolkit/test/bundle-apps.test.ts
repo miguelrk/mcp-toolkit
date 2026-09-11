@@ -50,7 +50,6 @@ describe('bundleAppHtml', () => {
     const css = join(playground, 'app.css')
     await writeFile(css, '#mcp-app { --mcp-test-color: #123456; }')
 
-    let hookConfigRoot: string | undefined
     const html = await bundleAppHtml(
       { name: 'custom-app', sfc: join(playground, 'custom-app.vue') },
       '<script setup lang="ts">const label = \'custom entry\'</script><template><p>{{ label }}</p></template>',
@@ -59,21 +58,23 @@ describe('bundleAppHtml', () => {
       silentLog,
       {
         srcDir: playground,
-        css: [css],
+        css: ['~/app.css'],
         entry: `import { createApp } from 'vue'
 import App from './App.vue'
+document.documentElement.dataset.mcpEntry = 'custom'
 createApp(App).mount('#mcp-app')
 `,
-        vite: (config) => {
-          hookConfigRoot = config.root
-          return config
-        },
+        plugins: [{
+          name: 'mcp-test-marker',
+          transformIndexHtml: html => html.replace('</head>', '<meta name="mcp-test-plugin" content="enabled"></head>'),
+        }],
       },
     )
 
-    expect(hookConfigRoot).toContain('__entry__')
     expect(html).toContain('custom entry')
+    expect(html).toContain('mcpEntry')
     expect(html).toContain('--mcp-test-color')
+    expect(html).toContain('mcp-test-plugin')
     expect(html).toContain('class="isolate"')
   })
 })

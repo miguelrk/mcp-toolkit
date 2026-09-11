@@ -87,7 +87,7 @@ export interface ModuleOptions {
    */
   appsDir?: string
   /**
-   * Customize the isolated Vite build used for MCP Apps.
+   * Customize the isolated Vue bundle used for MCP Apps.
    * This is a Vue-only build and does not share the Nuxt runtime or module graph.
    */
   apps?: McpAppsOptions

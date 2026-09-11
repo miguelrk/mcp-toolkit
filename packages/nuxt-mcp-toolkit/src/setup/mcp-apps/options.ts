@@ -1,11 +1,11 @@
-import type { UserConfig } from 'vite'
+import type { PluginOption } from 'vite'
 
 export interface McpAppsOptions {
   /**
-   * Customize the isolated Vite build used for MCP Apps.
-   * The returned config is merged with the toolkit's Vue and single-file plugins.
+   * Additional plugins for the isolated Vite build used for MCP Apps.
+   * The toolkit's Vue and single-file plugins are always retained.
    */
-  vite?: (config: UserConfig) => UserConfig | Promise<UserConfig>
+  plugins?: PluginOption[]
   /**
    * Stylesheets to import into every app bundle.
    * `~` and `@` resolve from the Nuxt source directory.

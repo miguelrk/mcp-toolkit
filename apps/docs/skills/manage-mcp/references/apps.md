@@ -22,6 +22,28 @@ The first sub-directory under `app/mcp/` becomes the **named-handler attribution
 
 Override the directory via `mcp.appsDir` in `nuxt.config.ts`. The MCP Apps pipeline only runs when the directory exists — fully tree-shakable when unused.
 
+Customize the isolated Vue bundle through `mcp.apps` when an app needs global CSS, extra Vite plugins, or a different mount entry:
+
+```ts [nuxt.config.ts]
+import ui from '@nuxt/ui/vite'
+
+export default defineNuxtConfig({
+  mcp: {
+    apps: {
+      css: ['~/app/mcp/app.css'],
+      plugins: [ui({ router: false, colorMode: false })],
+      entry: `import { createApp } from 'vue'
+import ui from '@nuxt/ui/vue-plugin'
+import App from './App.vue'
+
+createApp(App).use(ui).mount('#mcp-app')`,
+    },
+  },
+})
+```
+
+Use Vue-only integrations such as `@nuxt/ui/vite`; the iframe does not share the host Nuxt runtime or module graph. The toolkit always retains its required Vue and single-file plugins. Stylesheets are inlined, and `~`/`@` resolve from the Nuxt source directory.
+
 ## Quick Start
 
 ```vue [app/mcp/color-picker.vue]

@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve as resolvePath } from 'node:path'
 import type { Resolver } from '@nuxt/kit'
 import type { ConsolaInstance } from 'consola'
-import type { UserConfig } from 'vite'
+import type { InlineConfig } from 'vite'
 import type { DiscoveredApp } from './discover'
 import type { McpAppsOptions } from './options'
 
@@ -75,7 +75,7 @@ createApp(App).mount('#mcp-app')
   // tsconfig from imported files that live outside this entry dir (e.g. `./stay-format`).
   const vite8 = typeof transformWithOxc === 'function'
 
-  const baseConfig: UserConfig = {
+  const config: InlineConfig = {
     root: entryDir,
     logLevel: 'silent',
     configFile: false,
@@ -89,7 +89,7 @@ createApp(App).mount('#mcp-app')
         { find: '@', replacement: options.srcDir },
       ],
     },
-    plugins: [vue(), viteSingleFile()],
+    plugins: [vue(), ...(options.plugins ?? []), viteSingleFile()],
     build: {
       outDir,
       emptyOutDir: true,
@@ -100,12 +100,7 @@ createApp(App).mount('#mcp-app')
       },
     },
   }
-  const userConfig = options.vite ? await options.vite(baseConfig) : baseConfig
-  await viteBuild({
-    ...userConfig,
-    root: entryDir,
-    configFile: false,
-  })
+  await viteBuild(config)
 
   const htmlPath = resolvePath(outDir, 'index.html')
   if (!existsSync(htmlPath)) {
