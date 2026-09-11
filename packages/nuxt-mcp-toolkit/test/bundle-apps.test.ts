@@ -45,7 +45,7 @@ describe('bundleAppHtml', () => {
     }
   })
 
-  it('supports an isolated custom entry, stylesheet imports, and Vite plugins', async () => {
+  it('supports a custom entry, stylesheet aliases, and additional Vite plugins', async () => {
     playground = await mkdtemp(join(fileURLToPath(new URL('.', import.meta.url)), '.tmp-bundle-'))
     const css = join(playground, 'app.css')
     await writeFile(css, '#mcp-app { --mcp-test-color: #123456; }')
@@ -64,7 +64,7 @@ import App from './App.vue'
 document.documentElement.dataset.mcpEntry = 'custom'
 createApp(App).mount('#mcp-app')
 `,
-        plugins: [{
+        vitePlugins: [{
           name: 'mcp-test-marker',
           transformIndexHtml: html => html.replace('</head>', '<meta name="mcp-test-plugin" content="enabled"></head>'),
         }],
@@ -76,5 +76,31 @@ createApp(App).mount('#mcp-app')
     expect(html).toContain('--mcp-test-color')
     expect(html).toContain('mcp-test-plugin')
     expect(html).toContain('class="isolate"')
+  })
+
+  it('installs default-exported Vue plugins in the generated entry', async () => {
+    playground = await mkdtemp(join(fileURLToPath(new URL('.', import.meta.url)), '.tmp-bundle-'))
+    const plugin = join(playground, 'vue-plugin.ts')
+    await writeFile(plugin, `export default {
+  install() {
+    document.head.insertAdjacentHTML('beforeend', '<meta name="mcp-vue-plugin" content="enabled">')
+  },
+}
+`)
+
+    const html = await bundleAppHtml(
+      { name: 'vue-plugin-app', sfc: join(playground, 'vue-plugin-app.vue') },
+      '<template><p>Vue plugin app</p></template>',
+      join(playground, '.nuxt/mcp-apps'),
+      resolver,
+      silentLog,
+      {
+        srcDir: playground,
+        vuePlugins: [plugin],
+      },
+    )
+
+    expect(html).toContain('mcp-vue-plugin')
+    expect(html).toContain('Vue plugin app')
   })
 })

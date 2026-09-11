@@ -53,12 +53,22 @@ export async function bundleAppHtml(
 </html>
 `, 'utf-8')
 
-  const cssImports = (options.css ?? []).map(css => `import ${JSON.stringify(css)}
-`).join('')
-  const defaultEntry = `import { createApp } from 'vue'
-import App from './App.vue'
+  if (options.entry && options.vuePlugins?.length) {
+    throw new Error('MCP App bundle options cannot combine entry with vuePlugins.')
+  }
 
-createApp(App).mount('#mcp-app')
+  const cssImports = (options.css ?? []).map(css => `import ${JSON.stringify(css)}\n`).join('')
+  const vuePluginImports = (options.vuePlugins ?? [])
+    .map((plugin, index) => `import mcpVuePlugin${index} from ${JSON.stringify(plugin)}\n`)
+    .join('')
+  const vuePluginUses = (options.vuePlugins ?? [])
+    .map((_, index) => `app.use(mcpVuePlugin${index})\n`)
+    .join('')
+  const defaultEntry = `import { createApp } from 'vue'
+${vuePluginImports}import App from './App.vue'
+
+const app = createApp(App)
+${vuePluginUses}app.mount('#mcp-app')
 `
   await writeFile(resolvePath(entryDir, 'entry.ts'), `${cssImports}${options.entry ?? defaultEntry}`, 'utf-8')
 
@@ -89,7 +99,7 @@ createApp(App).mount('#mcp-app')
         { find: '@', replacement: options.srcDir },
       ],
     },
-    plugins: [vue(), ...(options.plugins ?? []), viteSingleFile()],
+    plugins: [vue(), ...(options.vitePlugins ?? []), viteSingleFile()],
     build: {
       outDir,
       emptyOutDir: true,

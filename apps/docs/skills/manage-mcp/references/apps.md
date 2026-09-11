@@ -31,18 +31,14 @@ export default defineNuxtConfig({
   mcp: {
     apps: {
       css: ['~/app/mcp/app.css'],
-      plugins: [ui({ router: false, colorMode: false })],
-      entry: `import { createApp } from 'vue'
-import ui from '@nuxt/ui/vue-plugin'
-import App from './App.vue'
-
-createApp(App).use(ui).mount('#mcp-app')`,
+      vitePlugins: [ui({ router: false, colorMode: false })],
+      vuePlugins: ['@nuxt/ui/vue-plugin'],
     },
   },
 })
 ```
 
-Use Vue-only integrations such as `@nuxt/ui/vite`; the iframe does not share the host Nuxt runtime or module graph. The toolkit always retains its required Vue and single-file plugins. Stylesheets are inlined, and `~`/`@` resolve from the Nuxt source directory.
+Use Vue-only integrations such as `@nuxt/ui/vite`; the iframe does not share the host Nuxt runtime or module graph. The toolkit always retains its required Vue and single-file plugins. Stylesheets are inlined, and `~`/`@` resolve from the Nuxt source directory. Use `entry` only when replacing the generated Vue mount entry; it cannot be combined with `vuePlugins`.
 
 ## Quick Start
 
