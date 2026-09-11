@@ -1,7 +1,7 @@
 import { logger } from '@nuxt/kit'
 import { refreshCustomTabs } from '@nuxt/devtools-kit'
 import type { Nuxt } from 'nuxt/schema'
-import type { ModuleOptions } from '../../../../module'
+import type { McpHeaderValue, ModuleOptions } from '../../../../module'
 import { spawn } from 'node:child_process'
 import type { ChildProcess } from 'node:child_process'
 
@@ -27,7 +27,7 @@ const ERROR_PATTERNS = [
 
 const NPMJS_REGISTRY = 'https://registry.npmjs.org'
 
-function buildInspectorHeaders(headers: Record<string, string | string[] | null | undefined> = {}): string[] {
+function buildInspectorHeaders(headers: Record<string, McpHeaderValue> = {}): string[] {
   const args: string[] = []
 
   for (const [key, value] of Object.entries(headers)) {
@@ -52,7 +52,7 @@ function buildInspectorHeaders(headers: Record<string, string | string[] | null 
 export function inspectorNpxSpec(
   mcpServerUrl: string,
   processEnv: NodeJS.ProcessEnv = process.env,
-  headers: Record<string, string | string[] | null | undefined> = {},
+  headers: Record<string, McpHeaderValue> = {},
 ): { command: string, args: string[], env: NodeJS.ProcessEnv } {
   const registry = processEnv.MCP_INSPECTOR_REGISTRY || NPMJS_REGISTRY
   return {

@@ -7,13 +7,19 @@ import { setupEvlog } from './setup/evlog'
 import { setupNitroAliases } from './setup/nitro-aliases'
 import { name, version } from '../package.json'
 import type { McpIcon } from './runtime/server/mcp/definitions/handlers'
-import type { McpConfig, McpDefaultHandlerStrategy, McpInspectorConfig, McpSecurityConfig } from './runtime/server/mcp/config'
+import type { McpConfig, McpDefaultHandlerStrategy, McpSecurityConfig } from './runtime/server/mcp/config'
 
 const log = logger.withTag('@nuxtjs/mcp-toolkit')
 
 export const { resolve } = createResolver(import.meta.url)
 
 export type * from './runtime/server/types'
+
+export type McpHeaderValue = string | string[] | null | undefined
+
+export interface McpInspectorConfig {
+  headers?: Record<string, McpHeaderValue>
+}
 
 export interface ModuleOptions {
   /**
